@@ -9,13 +9,13 @@ use eframe::{
     epaint::{FontFamily, FontId},
 };
 
-pub struct XMarkrApp {
+pub struct RMarkrApp {
     source: String,
     theme: Theme,
     colors: ThemeColors,
 }
 
-impl XMarkrApp {
+impl RMarkrApp {
     pub fn new(cc: &eframe::CreationContext<'_>, theme: Theme) -> Self {
         let mut app = Self {
             source: String::from(TEST_SRC),
@@ -163,7 +163,7 @@ impl XMarkrApp {
     }
 }
 
-impl eframe::App for XMarkrApp {
+impl eframe::App for RMarkrApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.ui(ctx);
     }

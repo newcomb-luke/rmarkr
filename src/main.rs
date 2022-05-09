@@ -1,6 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
-use app::XMarkrApp;
+use app::RMarkrApp;
 use theme::Theme;
 
 mod app;
@@ -15,9 +15,9 @@ fn main() {
     let theme = Theme::Dark;
 
     eframe::run_native(
-        "Test",
+        "rmarkr",
         options,
-        Box::new(move |cc| Box::new(XMarkrApp::new(cc, theme))),
+        Box::new(move |cc| Box::new(RMarkrApp::new(cc, theme))),
     );
 }
 
