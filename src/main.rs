@@ -15,93 +15,32 @@ fn main() {
     let theme = Theme::Dark;
 
     eframe::run_native(
-        "rmarkr",
+        "Test",
         options,
         Box::new(move |cc| Box::new(RMarkrApp::new(cc, theme))),
     );
 }
 
-pub const TEST_SRC: &'static str = r#"impl Style {
-    pub fn ui(&mut self, ui: &mut crate::Ui) {
-        let Self {
-            override_font_id,
-            override_text_style,
-            text_styles,
-            wrap: _,
-            spacing,
-            interaction,
-            visuals,
-            animation_time,
-            debug,
-            explanation_tooltips,
-        } = self;
+pub const TEST_SRC: &'static str = r#"
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+Nulla consectetur neque id urna semper ullamcorper.
+In non tellus ac est interdum vestibulum sit amet eu metus.
+Donec justo purus, aliquet vitae pulvinar aliquet, laoreet et nibh.
+Praesent accumsan augue vehicula tellus eleifend, eget molestie leo interdum.
+Donec fringilla massa vitae magna elementum mollis.
+Donec purus mauris, gravida sit amet aliquam vitae, lacinia quis dolor.
+Ut quis rutrum erat. In hac habitasse platea dictumst.
+Aenean eget magna vulputate, semper sem sit amet, tempus mi. 
+Nullam tempus tristique felis vel pulvinar. Vestibulum nec posuere dui. 
+Nunc varius dui quis purus facilisis, sed pellentesque ex efficitur.
+Cras sollicitudin bibendum elit a semper.
+Suspendisse rhoncus, urna vel gravida tincidunt, felis nibh vestibulum urna, et dapibus quam nibh a neque.
 
-        visuals.light_dark_radio_buttons(ui);
+Morbi et purus erat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed finibus, nisl at suscipit lobortis, arcu lacus dictum sem, non vestibulum leo mauris id risus. Maecenas at lorem quis justo blandit finibus nec non nisi. Fusce quis felis faucibus, lacinia nisl sit amet, gravida risus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aenean facilisis tortor et gravida venenatis. Praesent in vestibulum purus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Ut dictum eleifend vulputate. Etiam facilisis purus vel eleifend dapibus. Aliquam sed venenatis dolor. Duis quam nunc, interdum feugiat egestas quis, mattis eget arcu.
 
-        crate::Grid::new("_options").show(ui, |ui| {
-            ui.label("Override font id:");
-            ui.horizontal(|ui| {
-                ui.radio_value(override_font_id, None, "None");
-                if ui.radio(override_font_id.is_some(), "override").clicked() {
-                    *override_font_id = Some(FontId::default());
-                }
-                if let Some(override_font_id) = override_font_id {
-                    crate::introspection::font_id_ui(ui, override_font_id);
-                }
-            });
-            ui.end_row();
+Fusce lacinia mi lectus. Proin lectus nulla, dapibus id nibh id, molestie condimentum sem. Nullam urna turpis, congue quis velit eu, venenatis fermentum nisl. Mauris porttitor ultricies tortor, vitae posuere mi finibus et. Ut vitae placerat augue. Phasellus varius massa elit, nec pulvinar nulla consectetur eget. Integer auctor ac ligula eu suscipit. Nam auctor velit in purus elementum cursus. Etiam consectetur blandit aliquam. Suspendisse mattis venenatis justo eu efficitur. Mauris venenatis eros magna, sit amet facilisis eros luctus commodo. Proin viverra lacus sit amet est semper, quis condimentum libero tempus. Mauris tincidunt orci vitae nulla varius posuere. In gravida massa sed dolor finibus, vel malesuada massa eleifend.
 
-            ui.label("Override text style:");
-            crate::ComboBox::from_id_source("Override text style")
-                .selected_text(match override_text_style {
-                    None => "None".to_owned(),
-                    Some(override_text_style) => override_text_style.to_string(),
-                })
-                .show_ui(ui, |ui| {
-                    ui.selectable_value(override_text_style, None, "None");
-                    let all_text_styles = ui.style().text_styles();
-                    for style in all_text_styles {
-                        let text =
-                            crate::RichText::new(style.to_string()).text_style(style.clone());
-                        ui.selectable_value(override_text_style, Some(style), text);
-                    }
-                });
-            ui.end_row();
+Sed rutrum vehicula metus, sed mattis ipsum tincidunt sed. Integer in aliquam massa, et sodales turpis. Vivamus faucibus, nisi eget sagittis pretium, nunc felis tristique lacus, eget dictum mauris est eget lorem. Aenean sed enim euismod, ultrices diam id, lacinia enim. Aenean faucibus rutrum egestas. Vivamus sed tortor pellentesque, imperdiet velit a, tempus mauris. Morbi molestie nulla et lacinia tempor. Phasellus laoreet eleifend erat, ut mollis lorem porttitor eu. Donec dolor lorem, euismod in nisi in, finibus cursus sem. Aliquam erat volutpat. Nulla ultricies enim id neque venenatis sagittis. Ut vestibulum pulvinar molestie.
 
-            ui.label("Animation duration:");
-            ui.add(
-                Slider::new(animation_time, 0.0..=1.0)
-                    .clamp_to_range(true)
-                    .suffix(" s"),
-            );
-            ui.end_row();
-        });
-
-        ui.collapsing("🔠 Text Styles", |ui| text_styles_ui(ui, text_styles));
-        ui.collapsing("📏 Spacing", |ui| spacing.ui(ui));
-        ui.collapsing("☝ Interaction", |ui| interaction.ui(ui));
-        ui.collapsing("🎨 Visuals", |ui| visuals.ui(ui));
-        ui.collapsing("🐛 Debug", |ui| debug.ui(ui));
-
-        ui.checkbox(explanation_tooltips, "Explanation tooltips")
-            .on_hover_text(
-                "Show explanatory text when hovering DragValue:s and other egui widgets",
-            );
-
-        ui.vertical_centered(|ui| reset_button(ui, self));
-    }
-}
-
-fn text_styles_ui(ui: &mut Ui, text_styles: &mut BTreeMap<TextStyle, FontId>) -> Response {
-    ui.vertical(|ui| {
-        crate::Grid::new("text_styles").show(ui, |ui| {
-            for (text_style, font_id) in text_styles.iter_mut() {
-                ui.label(RichText::new(text_style.to_string()).font(font_id.clone()));
-                crate::introspection::font_id_ui(ui, font_id);
-                ui.end_row();
-            }
-        });
-        crate::reset_button_with(ui, text_styles, default_text_styles());
-    })
-    .response
-}"#;
+Aliquam a pulvinar mauris, molestie malesuada libero. Mauris mattis augue ante, at vestibulum leo mattis sit amet. Etiam efficitur aliquet tincidunt. Nullam sodales massa odio, ut cursus orci commodo nec. Duis a nisl eget nisi sodales convallis. Sed dictum fermentum risus, sit amet facilisis odio dictum sed. Donec nec ornare lacus. Nulla facilisi. Mauris imperdiet odio nec lobortis mattis. Mauris malesuada pharetra suscipit. Nam mollis diam eu mi aliquet, et interdum enim laoreet. Praesent interdum consequat justo eget vestibulum. Integer sit amet quam ex. Sed consequat luctus turpis ut porta.
+"#;

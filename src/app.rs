@@ -29,6 +29,59 @@ impl RMarkrApp {
         app
     }
 
+    fn style_menu(&mut self, ui: &mut egui::Ui) {
+        let mut style = (**ui.style()).clone();
+        let mut visuals = style.visuals;
+        let mut widgets = visuals.widgets;
+        let mut spacing = style.spacing;
+
+        let text_stroke = Stroke::new(1.0, self.colors.button_colors.text_color);
+
+        widgets.hovered.fg_stroke = text_stroke;
+        widgets.inactive.fg_stroke = text_stroke;
+        widgets.active.fg_stroke = text_stroke;
+        widgets.open.fg_stroke = text_stroke;
+
+        widgets.inactive.bg_fill = self.colors.button_colors.inactive_color;
+        widgets.active.bg_fill = self.colors.button_colors.active_color;
+        widgets.hovered.bg_fill = self.colors.button_colors.hovered_color;
+        widgets.open.bg_fill = egui::Color32::WHITE;
+        widgets.inactive.bg_stroke = self.colors.button_colors.inactive_stroke;
+        widgets.active.bg_stroke = self.colors.button_colors.active_stroke;
+        widgets.hovered.bg_stroke = self.colors.button_colors.hovered_stroke;
+
+        spacing.button_padding = Vec2::new(16.0, 6.0);
+
+        visuals.widgets = widgets;
+
+        style.visuals = visuals;
+        style.spacing = spacing;
+
+        ui.set_style(style);
+    }
+
+    fn style_scroll(&mut self, ui: &mut egui::Ui) {
+        let mut style = (**ui.style()).clone();
+        let mut visuals = style.visuals;
+        let mut widgets = visuals.widgets;
+
+        let text_stroke = Stroke::new(1.0, self.colors.source_text_color);
+
+        widgets.hovered.fg_stroke = text_stroke;
+        widgets.inactive.fg_stroke = text_stroke;
+        widgets.active.fg_stroke = text_stroke;
+        widgets.open.fg_stroke = text_stroke;
+        widgets.inactive.bg_fill = self.colors.scroll_colors.inactive_color;
+        widgets.active.bg_fill = self.colors.scroll_colors.active_color;
+        widgets.hovered.bg_fill = self.colors.scroll_colors.hovered_color;
+
+        visuals.widgets = widgets;
+
+        style.visuals = visuals;
+
+        ui.set_style(style);
+    }
+
     fn apply_theme(&mut self, ctx: &egui::Context, theme: Theme) {
         let mut style = (*ctx.style()).clone();
         let mut visuals = style.visuals;
@@ -38,6 +91,8 @@ impl RMarkrApp {
         self.theme = theme;
 
         let text_stroke = Stroke::new(1.0, self.colors.source_text_color);
+        let mut frame_stroke = widgets.noninteractive.bg_stroke;
+        frame_stroke.color = self.colors.menu_color;
 
         widgets.hovered.fg_stroke = text_stroke;
         widgets.inactive.fg_stroke = text_stroke;
@@ -45,10 +100,7 @@ impl RMarkrApp {
         widgets.open.fg_stroke = text_stroke;
         widgets.noninteractive.fg_stroke = text_stroke;
         widgets.noninteractive.bg_fill = self.colors.menu_color;
-
-        widgets.inactive.bg_fill = self.colors.scroll_colors.inactive_color;
-        widgets.active.bg_fill = self.colors.scroll_colors.active_color;
-        widgets.hovered.bg_fill = self.colors.scroll_colors.hovered_color;
+        widgets.noninteractive.bg_stroke = frame_stroke;
 
         visuals.dark_mode = self.colors.is_dark;
         visuals.extreme_bg_color = self.colors.source_bg_color;
@@ -91,15 +143,25 @@ impl RMarkrApp {
 
     pub fn ui(&mut self, ctx: &egui::Context) {
         egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
+            self.style_menu(ui);
+
             ui.horizontal(|ui| {
-                if ui.button("New").clicked() {
-                    println!("New clicked");
-                }
-                if ui.button("Open").clicked() {
-                    println!("Open clicked");
-                }
+                ui.menu_button("File", |ui| {
+                    ui.add_space(20.0);
+
+                    if ui.button("New").clicked() {
+                        println!("New clicked");
+                    }
+
+                    ui.add_space(20.0);
+
+                    if ui.button("Open").clicked() {
+                        println!("Open clicked");
+                    }
+                });
             });
         });
+
         egui::CentralPanel::default()
             .frame(
                 egui::Frame::none()
@@ -108,6 +170,8 @@ impl RMarkrApp {
                     .inner_margin(Margin::same(0.0)),
             )
             .show(ctx, |ui| {
+                self.style_scroll(ui);
+
                 // Set 0 spacing so that our source and render panels aren't padded in
                 ui.spacing_mut().item_spacing = Vec2::splat(0.0);
 
