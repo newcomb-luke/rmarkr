@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 pulldown-cmark = { version = "0.9.1", default-features = false, features = ["simd"] }
-eframe = "0.18.0"
+druid = { git = "https://github.com/linebender/druid.git" }

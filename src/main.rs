@@ -1,53 +1,22 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
+use druid::widget::{Button, Flex, Label};
+use druid::{AppLauncher, LocalizedString, PlatformError, Widget, WidgetExt, WindowDesc};
 
-use eframe::egui::{self, style::Widgets};
-
-fn main() {
-    let mut options = eframe::NativeOptions::default();
-    options.transparent = true;
-    options.vsync = true;
-
-    eframe::run_native(
-        "Hello World",
-        options,
-        Box::new(|cc| Box::new(MyApp::new(cc))),
-    );
+fn main() -> Result<(), PlatformError> {
+    let main_window = WindowDesc::new(ui_builder());
+    let data = 0_u32;
+    AppLauncher::with_window(main_window)
+        .use_simple_logger()
+        .launch(data)
 }
 
-struct MyApp {
-    text: String,
-}
+fn ui_builder() -> impl Widget<u32> {
+    // The label text will be computed dynamically based on the current locale and count
+    let text =
+        LocalizedString::new("hello-counter").with_arg("count", |data: &u32, _env| (*data).into());
+    let label = Label::new(text).padding(5.0).center();
+    let button = Button::new("increment")
+        .on_click(|_ctx, data, _env| *data += 1)
+        .padding(5.0);
 
-impl MyApp {
-    fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        MyApp::style(&cc.egui_ctx);
-
-        Self {
-            text: String::from("Hello world!"),
-        }
-    }
-
-    fn style(ctx: &egui::Context) {
-        let mut style = (*ctx.style()).clone();
-        let mut visuals = style.visuals;
-        let dark = Widgets::dark();
-
-        // Set our app to the default dark mode
-        visuals.dark_mode = true;
-        visuals.widgets = dark;
-
-        style.visuals = visuals;
-
-        ctx.set_style(style);
-    }
-}
-
-impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.centered_and_justified(|ui| {
-                ui.label(&self.text);
-            });
-        });
-    }
+    Flex::column().with_child(label).with_child(button)
 }
