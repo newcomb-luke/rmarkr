@@ -1,46 +1,79 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
+// On Windows platform, don't show a console when opening the app.
+#![windows_subsystem = "windows"]
 
-use app::RMarkrApp;
-use theme::Theme;
+mod data;
+mod render;
+mod view;
 
-mod app;
-mod theme;
+use std::sync::Arc;
 
-fn main() {
-    let mut options = eframe::NativeOptions::default();
-    options.transparent = true;
-    options.vsync = true;
-    options.maximized = true;
+use data::AppState;
+use druid::text::RichText;
+use druid::{
+    theme, AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, LocalizedString,
+    Menu, Selector, Target, WindowDesc, WindowId,
+};
+use view::build_root_widget;
 
-    let theme = Theme::Dark;
+pub const OPEN_LINK: Selector<String> = Selector::new("druid-example.open-link");
 
-    eframe::run_native(
-        "Test",
-        options,
-        Box::new(move |cc| Box::new(RMarkrApp::new(cc, theme))),
-    );
+struct CommandDelegate;
+
+impl<T: Data> AppDelegate<T> for CommandDelegate {
+    fn command(
+        &mut self,
+        _ctx: &mut DelegateCtx,
+        _target: Target,
+        cmd: &Command,
+        _data: &mut T,
+        _env: &Env,
+    ) -> Handled {
+        if let Some(url) = cmd.get(OPEN_LINK) {
+            open::that_in_background(url);
+            Handled::Yes
+        } else {
+            Handled::No
+        }
+    }
 }
 
-pub const TEST_SRC: &'static str = r#"
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-Nulla consectetur neque id urna semper ullamcorper.
-In non tellus ac est interdum vestibulum sit amet eu metus.
-Donec justo purus, aliquet vitae pulvinar aliquet, laoreet et nibh.
-Praesent accumsan augue vehicula tellus eleifend, eget molestie leo interdum.
-Donec fringilla massa vitae magna elementum mollis.
-Donec purus mauris, gravida sit amet aliquam vitae, lacinia quis dolor.
-Ut quis rutrum erat. In hac habitasse platea dictumst.
-Aenean eget magna vulputate, semper sem sit amet, tempus mi. 
-Nullam tempus tristique felis vel pulvinar. Vestibulum nec posuere dui. 
-Nunc varius dui quis purus facilisis, sed pellentesque ex efficitur.
-Cras sollicitudin bibendum elit a semper.
-Suspendisse rhoncus, urna vel gravida tincidunt, felis nibh vestibulum urna, et dapibus quam nibh a neque.
+fn main() {
+    let main_window = WindowDesc::new(build_root_widget())
+        .title("rmarkr")
+        .transparent(true)
+        .menu(make_menu)
+        .window_size((400.0, 600.0));
 
-Morbi et purus erat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed finibus, nisl at suscipit lobortis, arcu lacus dictum sem, non vestibulum leo mauris id risus. Maecenas at lorem quis justo blandit finibus nec non nisi. Fusce quis felis faucibus, lacinia nisl sit amet, gravida risus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aenean facilisis tortor et gravida venenatis. Praesent in vestibulum purus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Ut dictum eleifend vulputate. Etiam facilisis purus vel eleifend dapibus. Aliquam sed venenatis dolor. Duis quam nunc, interdum feugiat egestas quis, mattis eget arcu.
+    let source = Arc::new(String::new());
 
-Fusce lacinia mi lectus. Proin lectus nulla, dapibus id nibh id, molestie condimentum sem. Nullam urna turpis, congue quis velit eu, venenatis fermentum nisl. Mauris porttitor ultricies tortor, vitae posuere mi finibus et. Ut vitae placerat augue. Phasellus varius massa elit, nec pulvinar nulla consectetur eget. Integer auctor ac ligula eu suscipit. Nam auctor velit in purus elementum cursus. Etiam consectetur blandit aliquam. Suspendisse mattis venenatis justo eu efficitur. Mauris venenatis eros magna, sit amet facilisis eros luctus commodo. Proin viverra lacus sit amet est semper, quis condimentum libero tempus. Mauris tincidunt orci vitae nulla varius posuere. In gravida massa sed dolor finibus, vel malesuada massa eleifend.
+    let data = AppState {
+        rendered: RichText::new("".into()),
+        source,
+    };
 
-Sed rutrum vehicula metus, sed mattis ipsum tincidunt sed. Integer in aliquam massa, et sodales turpis. Vivamus faucibus, nisi eget sagittis pretium, nunc felis tristique lacus, eget dictum mauris est eget lorem. Aenean sed enim euismod, ultrices diam id, lacinia enim. Aenean faucibus rutrum egestas. Vivamus sed tortor pellentesque, imperdiet velit a, tempus mauris. Morbi molestie nulla et lacinia tempor. Phasellus laoreet eleifend erat, ut mollis lorem porttitor eu. Donec dolor lorem, euismod in nisi in, finibus cursus sem. Aliquam erat volutpat. Nulla ultricies enim id neque venenatis sagittis. Ut vestibulum pulvinar molestie.
+    AppLauncher::with_window(main_window)
+        .log_to_console()
+        .configure_env(|env, _state| {
+            env.set(theme::TEXTBOX_BORDER_WIDTH, 0.0);
+            env.set(theme::TEXTBOX_BORDER_RADIUS, 0.0);
+        })
+        .delegate(CommandDelegate)
+        .launch(data)
+        .expect("Failed to launch application");
+}
 
-Aliquam a pulvinar mauris, molestie malesuada libero. Mauris mattis augue ante, at vestibulum leo mattis sit amet. Etiam efficitur aliquet tincidunt. Nullam sodales massa odio, ut cursus orci commodo nec. Duis a nisl eget nisi sodales convallis. Sed dictum fermentum risus, sit amet facilisis odio dictum sed. Donec nec ornare lacus. Nulla facilisi. Mauris imperdiet odio nec lobortis mattis. Mauris malesuada pharetra suscipit. Nam mollis diam eu mi aliquet, et interdum enim laoreet. Praesent interdum consequat justo eget vestibulum. Integer sit amet quam ex. Sed consequat luctus turpis ut porta.
-"#;
+fn make_menu<T: Data>(_window: Option<WindowId>, _data: &AppState, _env: &Env) -> Menu<T> {
+    let mut base = Menu::empty();
+
+    base = base.entry(
+        Menu::new(LocalizedString::new("common-menu-file-menu"))
+            .entry(druid::platform_menus::win::file::new())
+            .entry(druid::platform_menus::win::file::open())
+            .entry(druid::platform_menus::win::file::save())
+            .entry(druid::platform_menus::win::file::save_as())
+            .separator()
+            .entry(druid::platform_menus::win::file::close()),
+    );
+
+    base
+}
