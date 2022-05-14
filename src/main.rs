@@ -10,8 +10,8 @@ use std::sync::Arc;
 use data::AppState;
 use druid::text::RichText;
 use druid::{
-    AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, LocalizedString, Menu,
-    Selector, Target, WindowDesc, WindowId,
+    theme, AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, LocalizedString,
+    Menu, Selector, Target, WindowDesc, WindowId,
 };
 use view::build_root_widget;
 
@@ -53,6 +53,10 @@ fn main() {
 
     AppLauncher::with_window(main_window)
         .log_to_console()
+        .configure_env(|env, _state| {
+            env.set(theme::TEXTBOX_BORDER_WIDTH, 0.0);
+            env.set(theme::TEXTBOX_BORDER_RADIUS, 0.0);
+        })
         .delegate(CommandDelegate)
         .launch(data)
         .expect("Failed to launch application");
