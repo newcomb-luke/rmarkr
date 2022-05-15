@@ -1,4 +1,4 @@
-use druid::widget::{Controller, Flex, RawLabel, Scroll};
+use druid::widget::{Controller, Flex, RawLabel, Label, Scroll};
 use druid::{theme, Data, Env, EventCtx, WidgetExt};
 use druid::{widget::TextBox, Widget};
 
@@ -26,6 +26,8 @@ impl<W: Widget<AppState>> Controller<AppState, W> for RichTextRebuilder {
 }
 
 pub fn build_root_widget() -> impl Widget<AppState> {
+    let menu = Label::new("Placeholder");
+
     let source_text = TextBox::multiline()
         .expand()
         .lens(AppState::source)
@@ -35,8 +37,9 @@ pub fn build_root_widget() -> impl Widget<AppState> {
         .vertical()
         .expand();
 
+    Flex::column().with_child(menu).with_flex_child(
     Flex::row()
         .with_flex_child(Flex::column().with_flex_child(source_text, 1.0), 1.0)
         .with_flex_child(Flex::column().with_flex_child(rendered_text, 1.0), 1.0)
-        .background(theme::BACKGROUND_DARK)
+        .background(theme::BACKGROUND_DARK), 1.0)
 }

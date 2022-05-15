@@ -10,8 +10,7 @@ use std::sync::Arc;
 use data::AppState;
 use druid::text::RichText;
 use druid::{
-    theme, AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, LocalizedString,
-    Menu, Selector, Target, WindowDesc, WindowId,
+    theme, AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, Selector, Target, WindowDesc,
 };
 use view::build_root_widget;
 
@@ -40,9 +39,7 @@ impl<T: Data> AppDelegate<T> for CommandDelegate {
 fn main() {
     let main_window = WindowDesc::new(build_root_widget())
         .title("rmarkr")
-        .transparent(true)
-        .menu(make_menu)
-        .window_size((400.0, 600.0));
+        .window_size((1200.0, 600.0));
 
     let source = Arc::new(String::new());
 
@@ -60,20 +57,4 @@ fn main() {
         .delegate(CommandDelegate)
         .launch(data)
         .expect("Failed to launch application");
-}
-
-fn make_menu<T: Data>(_window: Option<WindowId>, _data: &AppState, _env: &Env) -> Menu<T> {
-    let mut base = Menu::empty();
-
-    base = base.entry(
-        Menu::new(LocalizedString::new("common-menu-file-menu"))
-            .entry(druid::platform_menus::win::file::new())
-            .entry(druid::platform_menus::win::file::open())
-            .entry(druid::platform_menus::win::file::save())
-            .entry(druid::platform_menus::win::file::save_as())
-            .separator()
-            .entry(druid::platform_menus::win::file::close()),
-    );
-
-    base
 }
