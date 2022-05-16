@@ -13,6 +13,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Build & Test
       run: |
+        apt install libpango1.0-dev
         rustup update ${{ matrix.rust }} && rustup default ${{ matrix.rust }}
         cargo test 
 
