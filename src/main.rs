@@ -10,7 +10,8 @@ use std::sync::Arc;
 use data::AppState;
 use druid::text::RichText;
 use druid::{
-    theme, AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, Selector, Target, WindowDesc,
+    theme, AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, Selector, Target,
+    WindowDesc,
 };
 use view::build_root_widget;
 
