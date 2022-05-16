@@ -1,5 +1,4 @@
-
-name: CI
+name: Rust CI
 on: [push, pull_request]
 
 jobs:
