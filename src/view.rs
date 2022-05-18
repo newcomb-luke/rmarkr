@@ -1,12 +1,13 @@
-use druid::widget::{Controller, Flex, Label, RawLabel, Scroll};
-use druid::{theme, Data, Env, EventCtx, WidgetExt};
-use druid::{widget::TextBox, Widget};
+use druid::widget::Controller;
+use druid::{Data, Env, EventCtx, LocalizedString, MenuItem, Point, SysMods, WidgetId, WindowId};
+use druid::{Menu, Widget};
 
 use crate::data::AppState;
 use crate::render::rebuild_rendered_text;
+use crate::widgets::MenuData;
 
 /// A controller that rebuilds the preview when edits occur
-struct RichTextRebuilder;
+pub struct RichTextRebuilder;
 
 impl<W: Widget<AppState>> Controller<AppState, W> for RichTextRebuilder {
     fn event(
@@ -25,23 +26,64 @@ impl<W: Widget<AppState>> Controller<AppState, W> for RichTextRebuilder {
     }
 }
 
-pub fn build_root_widget() -> impl Widget<AppState> {
-    let menu = Label::new("Placeholder");
+pub fn build_menu_data() -> MenuData {
+    MenuData {
+        active: 0,
+        widget_id: WidgetId::next(),
+        origin: Point::new(0.0, 0.0),
+        items: vec![].into(),
+        shown: false,
+    }
+}
 
-    let source_text = TextBox::multiline()
-        .expand()
-        .lens(AppState::source)
-        .controller(RichTextRebuilder);
+fn preferences() -> MenuItem<AppState> {
+    MenuItem::new(LocalizedString::new("macos-menu-preferences"))
+        .command(druid::commands::SHOW_PREFERENCES)
+        .hotkey(SysMods::Cmd, ",")
+}
 
-    let rendered_text = Scroll::new(RawLabel::new().lens(AppState::rendered).expand_width())
-        .vertical()
-        .expand();
+pub fn build_window_menu(
+    _window_id: Option<WindowId>,
+    _app_state: &AppState,
+    _env: &Env,
+) -> Menu<AppState> {
+    let mut base = Menu::empty();
 
-    Flex::column().with_child(menu).with_flex_child(
-        Flex::row()
-            .with_flex_child(Flex::column().with_flex_child(source_text, 1.0), 1.0)
-            .with_flex_child(Flex::column().with_flex_child(rendered_text, 1.0), 1.0)
-            .background(theme::BACKGROUND_DARK),
-        1.0,
+    #[cfg(target_os = "macos")]
+    {
+        base = base.entry(
+            druid::Menu::new(LocalizedString::new("common-menu-file-menu"))
+                .entry(druid::platform_menus::mac::file::new_file())
+                .entry(druid::platform_menus::mac::file::open_file())
+                .separator()
+                .entry(druid::platform_menus::mac::file::save())
+                .entry(druid::platform_menus::mac::file::save_as())
+                .separator()
+                .entry(druid::platform_menus::mac::file::close()),
+        );
+
+        base = base.entry(druid::platform_menus::mac::application::default());
+    }
+    base = base.entry(
+        druid::Menu::new(LocalizedString::new("common-menu-file-menu"))
+            .entry(druid::platform_menus::win::file::new())
+            .entry(druid::platform_menus::win::file::open())
+            .separator()
+            .entry(druid::platform_menus::win::file::save())
+            .entry(druid::platform_menus::win::file::save_as())
+            .separator()
+            .entry(druid::platform_menus::win::file::close()),
+    );
+
+    base.entry(
+        druid::Menu::new(LocalizedString::new("common-menu-edit-menu"))
+            .entry(druid::platform_menus::common::undo())
+            .entry(druid::platform_menus::common::redo())
+            .separator()
+            .entry(druid::platform_menus::common::cut())
+            .entry(druid::platform_menus::common::copy())
+            .entry(druid::platform_menus::common::paste())
+            .separator()
+            .entry(preferences()),
     )
 }

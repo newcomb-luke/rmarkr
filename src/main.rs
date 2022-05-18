@@ -2,18 +2,25 @@
 #![windows_subsystem = "windows"]
 
 mod data;
+pub mod editor;
+mod locale;
 mod render;
+pub mod theme;
 mod view;
+pub mod widgets;
+pub mod window;
 
 use std::sync::Arc;
 
 use data::AppState;
 use druid::text::RichText;
 use druid::{
-    theme, AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, Selector, Target,
-    WindowDesc,
+    AppDelegate, AppLauncher, ArcStr, Command, Data, DelegateCtx, Env, Handled, Key, Selector,
+    Target, Value, ValueType, WindowDesc,
 };
-use view::build_root_widget;
+use locale::window_localization;
+use view::{build_menu_data, build_window_menu};
+use window::RmarkrWindow;
 
 pub const OPEN_LINK: Selector<String> = Selector::new("druid-example.open-link");
 
@@ -38,22 +45,29 @@ impl<T: Data> AppDelegate<T> for CommandDelegate {
 }
 
 fn main() {
-    let main_window = WindowDesc::new(build_root_widget())
-        .title("rmarkr")
-        .window_size((1200.0, 600.0));
-
     let source = Arc::new(String::new());
 
     let data = AppState {
         rendered: RichText::new("".into()),
+        menu: build_menu_data().into(),
         source,
     };
 
+    let main_window = WindowDesc::new(RmarkrWindow::new(&data))
+        .menu(build_window_menu)
+        .title("rmarkr")
+        .window_size((1200.0, 600.0));
+
+    // let (resources, base_dir) = window_localization();
+
     AppLauncher::with_window(main_window)
+        // .localization_resources(resources, base_dir)
         .log_to_console()
-        .configure_env(|env, _state| {
-            env.set(theme::TEXTBOX_BORDER_WIDTH, 0.0);
-            env.set(theme::TEXTBOX_BORDER_RADIUS, 0.0);
+        .configure_env(|env, state| {
+            env.set(druid::theme::TEXTBOX_BORDER_WIDTH, 0.0);
+            env.set(druid::theme::TEXTBOX_BORDER_RADIUS, 0.0);
+
+            theme::add_to_env(env, state);
         })
         .delegate(CommandDelegate)
         .launch(data)
