@@ -51,6 +51,8 @@ pub fn build_window_menu(
 
     #[cfg(target_os = "macos")]
     {
+        base = base.entry(druid::platform_menus::mac::application::default());
+
         base = base.entry(
             druid::Menu::new(LocalizedString::new("common-menu-file-menu"))
                 .entry(druid::platform_menus::mac::file::new_file())
@@ -61,8 +63,6 @@ pub fn build_window_menu(
                 .separator()
                 .entry(druid::platform_menus::mac::file::close()),
         );
-
-        base = base.entry(druid::platform_menus::mac::application::default());
     }
 
     #[cfg(not(target_os = "macos"))]
