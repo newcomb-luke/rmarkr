@@ -64,16 +64,20 @@ pub fn build_window_menu(
 
         base = base.entry(druid::platform_menus::mac::application::default());
     }
-    base = base.entry(
-        druid::Menu::new(LocalizedString::new("common-menu-file-menu"))
-            .entry(druid::platform_menus::win::file::new())
-            .entry(druid::platform_menus::win::file::open())
-            .separator()
-            .entry(druid::platform_menus::win::file::save())
-            .entry(druid::platform_menus::win::file::save_as())
-            .separator()
-            .entry(druid::platform_menus::win::file::close()),
-    );
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        base = base.entry(
+            druid::Menu::new(LocalizedString::new("common-menu-file-menu"))
+                .entry(druid::platform_menus::win::file::new())
+                .entry(druid::platform_menus::win::file::open())
+                .separator()
+                .entry(druid::platform_menus::win::file::save())
+                .entry(druid::platform_menus::win::file::save_as())
+                .separator()
+                .entry(druid::platform_menus::win::file::close()),
+        );
+    }
 
     base.entry(
         druid::Menu::new(LocalizedString::new("common-menu-edit-menu"))
