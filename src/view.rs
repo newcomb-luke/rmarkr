@@ -1,10 +1,9 @@
 use druid::widget::Controller;
-use druid::{Data, Env, EventCtx, LocalizedString, MenuItem, Point, SysMods, WidgetId, WindowId};
+use druid::{Data, Env, EventCtx, LocalizedString, MenuItem, SysMods, WindowId};
 use druid::{Menu, Widget};
 
 use crate::data::AppState;
 use crate::render::rebuild_rendered_text;
-use crate::widgets::MenuData;
 
 /// A controller that rebuilds the preview when edits occur
 pub struct RichTextRebuilder;
@@ -23,16 +22,6 @@ impl<W: Widget<AppState>> Controller<AppState, W> for RichTextRebuilder {
         if !data.source.same(&pre_data) {
             data.rendered = rebuild_rendered_text(&data.source);
         }
-    }
-}
-
-pub fn build_menu_data() -> MenuData {
-    MenuData {
-        active: 0,
-        widget_id: WidgetId::next(),
-        origin: Point::new(0.0, 0.0),
-        items: vec![].into(),
-        shown: false,
     }
 }
 

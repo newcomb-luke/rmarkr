@@ -15,10 +15,11 @@ use std::sync::Arc;
 use data::AppState;
 use druid::text::RichText;
 use druid::{
-    AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, Key, Selector,
-    Target, WindowDesc,
+    AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, Selector, Target,
+    WindowDesc,
 };
-use view::{build_menu_data, build_window_menu};
+use view::build_window_menu;
+use widgets::MenuData;
 use window::RmarkrWindow;
 
 pub const OPEN_LINK: Selector<String> = Selector::new("druid-example.open-link");
@@ -48,7 +49,7 @@ fn main() {
 
     let data = AppState {
         rendered: RichText::new("".into()),
-        menu: build_menu_data().into(),
+        menu: MenuData::default().into(),
         source,
     };
 

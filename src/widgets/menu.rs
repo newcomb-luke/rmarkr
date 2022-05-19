@@ -1,4 +1,4 @@
-use druid::{Command, Point, RenderContext, Size, Widget, WidgetId};
+use druid::{Command, Point, Size, Widget, WidgetId};
 use std::sync::Arc;
 
 use crate::data::AppState;
@@ -20,6 +20,24 @@ pub struct MenuData {
     pub origin: Point,
     pub items: Arc<Vec<MenuItem>>,
     pub shown: bool,
+}
+
+impl MenuData {
+    pub fn new() -> Self {
+        Self {
+            active: 0,
+            widget_id: WidgetId::next(),
+            origin: Point::ZERO,
+            items: Vec::new().into(),
+            shown: false,
+        }
+    }
+}
+
+impl Default for MenuData {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 pub struct Menu {
