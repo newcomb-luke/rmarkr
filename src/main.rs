@@ -15,10 +15,9 @@ use std::sync::Arc;
 use data::AppState;
 use druid::text::RichText;
 use druid::{
-    AppDelegate, AppLauncher, ArcStr, Command, Data, DelegateCtx, Env, Handled, Key, Selector,
-    Target, Value, ValueType, WindowDesc,
+    AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, Handled, Key, Selector,
+    Target, WindowDesc,
 };
-use locale::window_localization;
 use view::{build_menu_data, build_window_menu};
 use window::RmarkrWindow;
 
