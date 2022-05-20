@@ -5,5 +5,6 @@ edition = "2021"
 
 [dependencies]
 pulldown-cmark = { version = "0.9.1", default-features = false, features = ["simd"] }
-druid = { git = "https://github.com/linebender/druid.git" }
+# druid = { git = "https://github.com/linebender/druid.git" }
+druid = { path = "../my-druid/druid" }
 open = "1.6"
